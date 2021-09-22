@@ -2856,8 +2856,8 @@ contains
     REAL(WP) :: tmp,tmp1,tmp2,tmp3,tmp4,ang
 
     REAL(WP) ,DIMENSION(3,3),INTENT(IN)::lat
-    REAL(WP) ,DIMENSION(3,*),INTENT(IN) :: xyz
-    INTEGER,DIMENSION(*),INTENT(IN)::iz
+    REAL(WP) ,DIMENSION(3,n),INTENT(IN) :: xyz
+    INTEGER,DIMENSION(n),INTENT(IN)::iz
     REAL(WP),DIMENSION(3):: jtau,ktau,jxyz,kxyz,ijvec,ikvec,jkvec,dumvec
     INTEGER,DIMENSION(3):: repv
     REAL(WP),INTENT(IN) ::cnthr
@@ -2893,7 +2893,7 @@ contains
     IF ( mykey == 0 ) THEN
     na_smax = max(3,na_s)
 
-!$acc data copyin(xyz(3,n),iz(n),cc6ab(n*n),lat(3,3),r0ab(max_elem,max_elem)) 
+!$acc data copyin(xyz(1:3,1:n),iz(1:n),cc6ab(1:n*n),lat(1:3,1:3),r0ab(1:max_elem,1:max_elem)) 
 !$acc kernels  vector_length(32)
 !$acc loop collapse(2) gang private(ijvec1,ijvec2,ijvec3, ikvec1,ikvec2,ikvec3, jkvec1,jkvec2,jkvec3, c9, r0ij,r0ik,r0jk, &
 !$acc&                              repmin1,repmin2,repmin3, repmax1,repmax2,repmax3, jtau1,jtau2,jtau3, &
@@ -2941,7 +2941,8 @@ contains
 
                 rr0ij=DSQRT(rij2)/r0ij
 
-!$acc loop vector collapse(3) private(ktau1,ktau2,ktau3,dumvec21,dumvec22,dumvec23,rik2,rr0ik,rjk2,rr0jk,geomean,fdamp,tmp1,tmp2,tmp3,tmp4,ang) reduction(+:eabc)
+!$acc loop vector collapse(3) private(ktau1,ktau2,ktau3,dumvec21,dumvec22,dumvec23,rik2,rr0ik,rjk2,rr0jk, & 
+!$acc&                                geomean,fdamp,tmp1,tmp2,tmp3,tmp4,ang) reduction(+:eabc)
                 do ktaux=repmin1,repmax1
                   do ktauy=repmin2,repmax2
                     do ktauz=repmin3,repmax3
@@ -3225,8 +3226,8 @@ contains
     USE mp,           ONLY : mp_sum
     integer :: mykey, na_s, na_smax, na_e
 
-    integer n,iz(*),max_elem,maxc,version,mxc(max_elem)
-    real(wp) xyz(3,*),r0ab(max_elem,max_elem),r2r4(*)
+    integer n,iz(n),max_elem,maxc,version,mxc(max_elem)
+    real(wp) xyz(3,n),r0ab(max_elem,max_elem),r2r4(*)
     real(wp) c6ab(max_elem,max_elem,maxc,maxc,3)
     real(wp) g(3,*),s6,s18,rcov(max_elem)
     real(wp) rs6,rs8,rs10,alp10,alp8,alp6
@@ -3894,10 +3895,11 @@ contains
       IF ( mykey == 0 ) THEN
       na_smax = max(3,na_s)
 
-!$acc data copyin(xyz(1:3,1:n),iz(1:n),lat(1:3,1:3),r0ab(1:max_elem,1:max_elem),c6save(1:n*(n+1)),dc6ij(1:n,1:n)) &
+!$acc data copyin(xyz(1:3,1:n),iz(:n),lat(1:3,1:3),r0ab(1:max_elem,1:max_elem),c6save(1:n*(n+1)),dc6ij(1:n,1:n)) &
 !$acc&            copy(dc6i(1:n),drij(-rep_v3:rep_v3,-rep_v2:rep_v2,-rep_v1:rep_v1,1:n*(n+1)/2)) 
 !$acc parallel vector_length(32) 
-!$acc loop collapse(3) gang  private(ijvec1,ijvec2,ijvec3, ikvec1,ikvec2,ikvec3, jkvec1,jkvec2,jkvec3, c6ij,c6ik,c6jk,c9, linij,linik,linjk, &
+!$acc loop collapse(3) gang  private(ijvec1,ijvec2,ijvec3, ikvec1,ikvec2,ikvec3, jkvec1,jkvec2,jkvec3, &
+!$acc&                               c6ij,c6ik,c6jk,c9, linij,linik,linjk, &
 !$acc&                              jtau1,jtau2,jtau3, rij2,rr0ij, repmin1,repmin2,repmin3,repmax1,repmax2,repmax3 ) &
 !$acc&                       reduction(+:eabc) 
       do iat=na_smax,na_e
