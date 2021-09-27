@@ -40,7 +40,7 @@ TOPDIR = $(dir $(abspath $(filter %make.inc,$(MAKEFILE_LIST))))
 # MANUAL_DFLAGS  = additional precompilation option(s), if desired
 #                  BEWARE: it does not work for IBM xlf! Manually edit FDFLAGS
 MANUAL_DFLAGS  =
-DFLAGS         =  -D__DFTI -D__MPI
+DFLAGS         =  -D__DFTI
 FDFLAGS        = $(DFLAGS) $(MANUAL_DFLAGS)
 
 # IFLAGS = how to locate directories with *.h or *.f90 file to be included
@@ -73,8 +73,8 @@ BASEMOD_FLAGS= $(MOD_FLAG)$(TOPDIR)/upflib \
 # (such as for instance mpif90, mpf90, mpxlf90,...);
 # otherwise, an ordinary fortran-90 compiler (f90, g95, xlf90, ifort,...)
 
-MPIF90         = mpif90
-F90           = gfortran
+MPIF90         = /home/ivan/spack/opt/spack/linux-ubuntu18.04-skylake_avx512/gcc-10.2.0/gcc-10.2.0-bxh2rhznay7fnvybnzziehdznmxds47k/bin/gfortran
+F90           =  /home/ivan/spack/opt/spack/linux-ubuntu18.04-skylake_avx512/gcc-10.2.0/gcc-10.2.0-bxh2rhznay7fnvybnzziehdznmxds47k/bin/gfortran
 CC             = /home/ivan/spack/opt/spack/linux-ubuntu18.04-skylake_avx512/gcc-10.2.0/gcc-10.2.0-bxh2rhznay7fnvybnzziehdznmxds47k/bin/gcc
 
 # CUDA Toolkit path
@@ -101,7 +101,7 @@ CPPFLAGS       = -P -traditional -Uvector $(DFLAGS) $(IFLAGS)
 # F90 flags must include MODFLAGS, IFLAGS, and FDFLAGS with appropriate syntax
 
 CFLAGS         = -O3 $(DFLAGS) $(IFLAGS)
-F90FLAGS       = $(FFLAGS) -cpp $(FDFLAGS) $(CUDA_F90FLAGS) $(IFLAGS) $(MODFLAGS)
+F90FLAGS       = $(FFLAGS) -cpp $(FDFLAGS) $(CUDA_F90FLAGS) $(IFLAGS) $(MODFLAGS)  -fopenacc   -foffload=nvptx-none   -foffload=-misa=sm_35   -foffload=-lm -foffload=-lgfortran  
 
 # compiler flags with and without optimization for fortran-77
 # the latter is NEEDED to properly compile dlamch.f, used by lapack
@@ -118,8 +118,8 @@ FFLAGS_NOMAIN   =
 # for libxc, set LD_LIBS=-L/path/to/libxc/lib/ -lxcf03 -lxc
 # If libxc release is 5.0.0 replace -lxcf03 with -lxcf90
 
-LD             = mpif90
-LDFLAGS        =  -g
+LD             = /home/ivan/spack/opt/spack/linux-ubuntu18.04-skylake_avx512/gcc-10.2.0/gcc-10.2.0-bxh2rhznay7fnvybnzziehdznmxds47k/bin/gfortran  
+LDFLAGS        =  -g -fopenacc   -foffload=nvptx-none   -foffload=-misa=sm_35   -foffload=-lm -foffload=-lgfortran  
 LD_LIBS        = 
 
 # External Libraries (if any) : blas, lapack, fft, MPI
